@@ -87,6 +87,15 @@ The project uses SQLite database named `smart_feedback.db`.
 - Unauthorized access and invalid token handling tested.
 - Environment variables configured for secret key.
 
+
+### Authentication and Access Rules
+
+- User registration and login endpoints are publicly accessible.
+- Feedback CRUD endpoints require JWT authentication.
+- Users must provide a valid Bearer token to access protected feedback endpoints.
+- Requests without a token or with an invalid or expired token are rejected with HTTP 401 Unauthorized.
+- Passwords are securely stored as bcrypt hashes.
+- JWT access tokens expire after 30 minutes.
 ## Author
 
 Saher Liaqat
