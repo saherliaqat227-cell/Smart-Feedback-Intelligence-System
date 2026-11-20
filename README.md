@@ -1,9 +1,11 @@
 # Smart Feedback Intelligence System
 
 ## Project Description
+
 Smart Feedback Intelligence System is a Python-based backend application that analyzes customer feedback and identifies its sentiment as Positive, Negative, or Neutral using Machine Learning.
 
 ## Technologies Used
+
 - Python
 - FastAPI
 - SQLite
@@ -14,22 +16,23 @@ Smart Feedback Intelligence System is a Python-based backend application that an
 - Natural Language Processing (NLP)
 
 ## Project Structure
-- app/ - Main application
-- app/models/ - Database models
-- app/schemas/ - Pydantic schemas
-- app/routes/ - API routes
-- app/services/ - Business logic
-- app/core/ - Security configuration
-- ml/ - Machine Learning files
-- tests/ - Testing files
-- docs/ - Project documentation
+
+- `app/` - Main application
+- `app/models/` - Database models
+- `app/schemas/` - Pydantic schemas
+- `app/routes/` - API routes
+- `app/services/` - Business logic
+- `app/core/` - Security configuration
+- `ml/` - Machine Learning files
+- `tests/` - Testing files
+- `docs/` - Project documentation
 
 ## Installation
 
 Install the required dependencies:
 
 ```bash
-pip install fastapi uvicorn sqlalchemy pydantic python-dotenv
+pip install -r requirements.txt
 ```
 
 ## Run the Application
@@ -47,11 +50,13 @@ After starting the server, open:
 http://127.0.0.1:8000/docs
 
 ## Database
-The project uses SQLite database named smart_feedback.db.
+
+The project uses SQLite database named `smart_feedback.db`.
 
 ## Current Progress
 
 ### Day 1 — Requirements, Setup and Design
+
 - FastAPI application setup completed.
 - Python virtual environment configured.
 - Health check API created.
@@ -60,6 +65,7 @@ The project uses SQLite database named smart_feedback.db.
 - Database schema documented.
 
 ### Day 2 — Database and Feedback CRUD
+
 - SQLAlchemy database integration completed.
 - User and Feedback models created.
 - Pydantic input and output schemas implemented.
@@ -71,5 +77,16 @@ The project uses SQLite database named smart_feedback.db.
 - Database error handling implemented and tested.
 - Database migration script created.
 
+### Day 3 — Authentication and Security
+
+- User registration and login APIs implemented.
+- Secure password hashing using bcrypt.
+- JWT access token generation with 30-minute expiry.
+- Protected feedback endpoints implemented.
+- Token validation and authenticated user verification.
+- Unauthorized access and invalid token handling tested.
+- Environment variables configured for secret key.
+
 ## Author
+
 Saher Liaqat
