@@ -1,4 +1,3 @@
-
 # Smart Feedback Intelligence System
 
 ## Project Description
@@ -51,12 +50,26 @@ http://127.0.0.1:8000/docs
 The project uses SQLite database named smart_feedback.db.
 
 ## Current Progress
+
+### Day 1 — Requirements, Setup and Design
 - FastAPI application setup completed.
+- Python virtual environment configured.
 - Health check API created.
 - SQLite database configured.
-- User and Feedback models created.
-- Pydantic schemas created.
+- Initial project structure created.
 - Database schema documented.
+
+### Day 2 — Database and Feedback CRUD
+- SQLAlchemy database integration completed.
+- User and Feedback models created.
+- Pydantic input and output schemas implemented.
+- Feedback Create, Read, Update and Delete (CRUD) APIs implemented.
+- Keyword search and sentiment filtering added.
+- Date range filtering implemented.
+- Pagination implemented.
+- Input validation and missing-record handling added.
+- Database error handling implemented and tested.
+- Database migration script created.
 
 ## Author
 Saher Liaqat
