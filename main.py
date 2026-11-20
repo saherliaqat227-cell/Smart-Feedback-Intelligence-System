@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from app.database import engine, Base
 from app.models.user import User
 from app.models.feedback import Feedback
+from app.routes.feedback import router as feedback_router
 
 app = FastAPI(
     title="Smart Feedback Intelligence System",
@@ -10,6 +11,8 @@ app = FastAPI(
 )
 
 Base.metadata.create_all(bind=engine)
+
+app.include_router(feedback_router)
 
 
 @app.get("/")
@@ -25,3 +28,4 @@ def health_check():
     return {
         "status": "Healthy"
     }
+
