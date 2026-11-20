@@ -1,3 +1,11 @@
+from typing import Optional
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from sqlalchemy.orm import Session
+from app.database import get_db
+from app.models.user import User
+
+from app.core.security import get_current_user
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -10,7 +18,11 @@ from app.database import get_db
 from app.models.feedback import Feedback
 from app.schemas.feedback import FeedbackCreate, FeedbackResponse, FeedbackUpdate
 
-router = APIRouter(prefix="/feedback", tags=["Feedback"])
+router = APIRouter(
+    prefix="/feedback",
+    tags=["Feedback"],
+    dependencies=[Depends(get_current_user)]
+)
 
 
 # CREATE FEEDBACK
@@ -161,3 +173,46 @@ def delete_feedback(feedback_id: int, db: Session = Depends(get_db)):
             status_code=500,
             detail="Database error occurred while deleting feedback"
         )
+
+    security = HTTPBearer(auto_error=False)
+
+    def get_current_user(
+            credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+            db: Session = Depends(get_db)
+    ):
+        if credentials is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Not authenticated",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+
+        token_data = verify_token(credentials.credentials)
+
+        if token_data is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or expired token",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+
+        user_id = token_data.get("sub")
+
+        if user_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token"
+            )
+
+        user = db.query(User).filter(User.id == int(user_id)).first()
+
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User not found"
+            )
+
+        return user
+
+
+
