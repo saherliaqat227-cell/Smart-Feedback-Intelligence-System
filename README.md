@@ -19,8 +19,10 @@ It uses a trained Logistic Regression model with TF-IDF text vectorization to pr
 - Search and sentiment filtering
 - Date-based filtering
 - Pagination
+- User-specific feedback access
 - SQLite database integration
 - Machine learning model integration
+- Input validation and error handling
 
 ## 2. Technologies Used
 
@@ -37,8 +39,12 @@ It uses a trained Logistic Regression model with TF-IDF text vectorization to pr
 | TF-IDF | Text feature extraction |
 | Logistic Regression | Sentiment classification |
 | Pandas | Dataset processing |
+| NumPy | Numerical operations |
 | Joblib | Saving and loading ML models |
 | Pytest | Automated testing |
+| Matplotlib | Data visualization |
+
+TF-IDF was selected for text preprocessing and feature extraction because it integrates directly with the Scikit-learn machine learning pipeline.
 
 ## 3. Project Structure
 
@@ -69,6 +75,7 @@ Smart-Feedback-Intelligence-System/
 │   └── database.py
 │
 ├── docs/
+│   ├── database_schema.md
 │   ├── dataset.md
 │   ├── model_training.md
 │   └── day5_sentiment_integration.md
@@ -82,9 +89,12 @@ Smart-Feedback-Intelligence-System/
 │   └── tfidf_vectorizer.pkl
 │
 ├── notebooks/
+│
 ├── tests/
+│   └── test_feedback.py
 │
 ├── main.py
+├── migrate_db.py
 ├── requirements.txt
 ├── .env.example
 ├── .gitignore
@@ -150,7 +160,7 @@ The application will run at:
 
 ## 5. API Documentation
 
-FastAPI automatically generates interactive API documentation.
+FastAPI automatically generates interactive API documentation using Swagger UI and OpenAPI.
 
 **Swagger UI:**
 
@@ -167,28 +177,44 @@ FastAPI automatically generates interactive API documentation.
 
 | Method | Endpoint | Description |
 |---|---|---|
-| POST | `/feedback/` | Create feedback |
-| GET | `/feedback/` | Get all feedback |
-| GET | `/feedback/{feedback_id}` | Get feedback by ID |
-| PUT | `/feedback/{feedback_id}` | Update feedback |
-| DELETE | `/feedback/{feedback_id}` | Delete feedback |
+| POST | `/api/feedback` | Create feedback with automatic sentiment prediction |
+| GET | `/api/feedback` | Get all feedback with search, filters and pagination |
+| GET | `/api/feedback/{feedback_id}` | Get feedback by ID |
+| PUT | `/api/feedback/{feedback_id}` | Update feedback |
+| DELETE | `/api/feedback/{feedback_id}` | Delete feedback |
 
-Feedback routes require authentication.
+### Feedback API Features
+
+- Search feedback by customer name or feedback text.
+- Filter feedback by sentiment.
+- Filter feedback by start date and end date.
+- Pagination using `skip` and `limit`.
+- Each authenticated user can access only their own feedback.
+- Feedback endpoints require JWT authentication.
+- Invalid requests return validation errors.
+- Missing feedback records return HTTP 404.
+- Database errors are handled with appropriate HTTP responses.
 
 ### Sentiment Analysis API
 
 | Method | Endpoint | Description |
 |---|---|---|
-| POST | `/api/sentiment/predict` | Predict feedback sentiment |
+| POST | `/api/sentiment/predict` | Predict feedback sentiment using the trained ML model |
+
+The sentiment prediction endpoint is public and does not require authentication.
+
+**Authentication:** Private feedback endpoints require a valid JWT Bearer access token.
 
 ## 6. Sentiment Analysis Model
 
-The system uses a Logistic Regression machine learning model trained on customer sentiment data.
+The system uses a Logistic Regression machine learning model trained on sentiment data.
 
-### Dataset
+### Dataset Information
 
 - Dataset: Twitter and Reddit Sentimental Analysis Dataset
+- Source: Kaggle
 - Selected file: `Twitter_Data.csv`
+- Original records: 162,980
 - Cleaned records: 160,843
 - Sentiment classes: Negative, Neutral, Positive
 
@@ -196,6 +222,7 @@ The system uses a Logistic Regression machine learning model trained on customer
 
 - Removed missing values.
 - Removed duplicate records.
+- Applied text cleaning.
 - Applied TF-IDF vectorization.
 - Used 30,000 maximum features.
 - Used unigram and bigram features.
@@ -206,15 +233,16 @@ The system uses a Logistic Regression machine learning model trained on customer
 - Algorithm: Logistic Regression
 - Maximum iterations: 1000
 - Vectorizer: TF-IDF
+- Train-test split: 80/20
 
 ### Model Evaluation
 
 | Metric | Score |
 |---|---:|
 | Accuracy | 85.24% |
-| Precision | 85.63% |
-| Recall | 85.24% |
-| F1-Score | 85.09% |
+| Weighted Precision | 85.63% |
+| Weighted Recall | 85.24% |
+| Weighted F1-Score | 85.09% |
 
 ### Class-wise Performance
 
@@ -224,7 +252,31 @@ The system uses a Logistic Regression machine learning model trained on customer
 | Neutral | 0.81 | 0.95 | 0.87 |
 | Positive | 0.89 | 0.84 | 0.87 |
 
-## 7. Model Files
+### Confusion Matrix
+
+| Actual / Predicted | Negative | Neutral | Positive |
+|---|---:|---:|---:|
+| Negative | 5077 | 923 | 1026 |
+| Neutral | 129 | 10269 | 454 |
+| Positive | 680 | 1536 | 12075 |
+
+## 7. Dataset Source and License
+
+The project uses the Twitter and Reddit Sentimental Analysis Dataset available on Kaggle.
+
+Dataset source:
+
+https://www.kaggle.com/datasets/cosmos98/twitter-and-reddit-sentimental-analysis-dataset
+
+The dataset is distributed under the **CC BY-NC-SA 4.0** license.
+
+This license requires appropriate attribution, restricts commercial use, and requires adaptations to be shared under the same license.
+
+The dataset contains social-media text and may not fully represent real customer feedback. This limitation is considered when interpreting model predictions.
+
+The original and cleaned CSV datasets are not included in GitHub because they are excluded through `.gitignore`.
+
+## 8. Model Files
 
 The trained model artifacts are saved in the `ml/` directory:
 
@@ -233,9 +285,9 @@ The trained model artifacts are saved in the `ml/` directory:
 
 The backend loads these files to predict the sentiment of submitted feedback.
 
-The original and cleaned CSV datasets are not included in GitHub because they are excluded through `.gitignore`.
+The trained model and vectorizer are loaded by the sentiment prediction service.
 
-## 8. Feedback Prediction Workflow
+## 9. Feedback Prediction Workflow
 
 When a customer submits feedback:
 
@@ -256,7 +308,7 @@ When a customer submits feedback:
 }
 ```
 
-## 9. Confidence Score and Limitations
+## 10. Confidence Score and Limitations
 
 The confidence score represents the highest probability returned by the model for its predicted sentiment class, expressed as a percentage.
 
@@ -264,7 +316,9 @@ It does not guarantee that the prediction is correct.
 
 The model may misclassify some feedback, especially short, ambiguous, neutral, or unusual text.
 
-## 10. Model Training
+The model was trained on social-media data, so its performance may differ when analyzing actual customer feedback.
+
+## 11. Model Training
 
 The reproducible training script is:
 
@@ -286,25 +340,40 @@ For more details, see:
 
 `docs/model_training.md`
 
-## 11. Project Progress
+## 12. Automated Testing
 
-| Day | Completed Work |
+Pytest is used for automated testing.
+
+Run the tests using:
+
+```bash
+python -m pytest tests/ -v
+```
+
+The project includes automated testing for database error handling, with additional API and integration tests included as the test suite is expanded.
+
+## 13. Project Progress
+
+| Day | Work |
 |---|---|
 | Day 1 | Project setup, FastAPI application, database setup and GitHub repository |
-| Day 2 | Database models, feedback CRUD APIs, validation, search and pagination |
+| Day 2 | Database models, feedback CRUD APIs, validation, search, filters and pagination |
 | Day 3 | User registration, login, password hashing and JWT authentication |
 | Day 4 | Dataset preparation, cleaning, TF-IDF, model training and evaluation |
 | Day 5 | ML model integration, sentiment prediction API and automatic feedback prediction storage |
+| Day 6 | Analytics endpoints, automated testing and bug fixing |
+| Day 7 | Final documentation, API examples, architecture explanation and project demonstration |
 
-## 12. Documentation
+## 14. Documentation
 
 Additional project documentation is available in the `docs/` directory:
 
-- `dataset.md` – Dataset information and exploration
-- `model_training.md` – Model training and evaluation report
-- `day5_sentiment_integration.md` – Sentiment integration and testing report
+- `database_schema.md` – Database tables and relationships.
+- `dataset.md` – Dataset information and exploration.
+- `model_training.md` – Model training and evaluation report.
+- `day5_sentiment_integration.md` – Sentiment integration and testing report.
 
-## 13. Future Improvements
+## 15. Future Improvements
 
 - Implement analytics and sentiment distribution dashboards.
 - Add daily sentiment trend analysis.
@@ -312,14 +381,19 @@ Additional project documentation is available in the `docs/` directory:
 - Expand automated test coverage.
 - Add more advanced machine learning models.
 - Improve logging and error monitoring.
+- Consider PostgreSQL for production database requirements.
 
-## 14. Author
+## 16. AI Assistance Disclosure
+
+AI coding assistance was used for guidance, code explanations, debugging, and documentation support during development. The project code, implementation decisions, testing, and final submission are reviewed and understood by the developer.
+
+## 17. Author
 
 **Saher Liaqat**
 
 BS Information Technology Student
 
-GitHub: [saherliaqat227-cell](https://github.com/saherliaqat227-cell)
+GitHub: https://github.com/saherliaqat227-cell
 
 ---
 

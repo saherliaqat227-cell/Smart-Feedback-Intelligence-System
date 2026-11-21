@@ -1,5 +1,7 @@
+
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Float
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 from app.database import Base
 
 
@@ -19,4 +21,12 @@ class Feedback(Base):
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+    updated_at = Column(
+        DateTime(timezone=True),
+        default=func.now(),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False
+    )
+
+    user = relationship("User", back_populates="feedbacks")
