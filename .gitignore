@@ -5,3 +5,4 @@ __pycache__/
 *.db
 .idea/
 ml/*.csv
+.pytest_cache/
