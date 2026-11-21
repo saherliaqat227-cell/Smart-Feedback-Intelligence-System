@@ -19,7 +19,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     if new_user is None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Email already registered"
+            detail="Email or username already registered"
         )
 
     return new_user
