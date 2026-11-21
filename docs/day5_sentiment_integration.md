@@ -25,6 +25,8 @@ It accepts feedback text and returns:
 - Predicted sentiment
 - Confidence score
 
+**Authentication:** The sentiment prediction endpoint is public and does not require JWT authentication. This allows users to test sentiment predictions without creating an account. Feedback management endpoints remain protected and require a valid JWT access token.
+
 ## 4. Feedback Submission Integration
 The feedback submission endpoint was connected to the sentiment prediction service.
 
@@ -38,15 +40,16 @@ The predicted sentiment and confidence score are stored with the feedback record
 
 ## 5. Testing Results
 
-| Test Case | Input | Result |
-|---|---|---|
-| Positive | The service was excellent and amazing. | Positive |
-| Negative | The service was very poor and disappointing. | Negative |
-| Neutral | The product arrived yesterday. It is available in three different colors. | Positive (misclassified) |
-| Empty | Blank spaces | HTTP 422 – Validation Error |
-| Unusual | 12345 !!! @@@ 😊 | Neutral |
+| Test Case | Input | Result | Confidence Score |
+|---|---|---|---:|
+| Positive | The service was excellent and amazing. | Positive | 99.97% |
+| Negative | The service was very poor and disappointing. | Negative | 99.98% |
+| Neutral | The product arrived yesterday. It is available in three different colors. | Positive (misclassified) | 87.91% |
+| Empty | Blank spaces | HTTP 422 – Validation Error | N/A |
+| Unusual | 12345 !!! @@@ 😊 | Neutral | 83.34% |
 
 Additional neutral examples were also tested. Some were classified as Neutral, while others received a different prediction.
+
 
 ## 6. Confidence Score Explanation
 The confidence score represents the highest probability returned by the model for its predicted sentiment class, multiplied by 100.

@@ -43,5 +43,28 @@ The model will classify text into three sentiment categories:
 - Negative
 - Neutral
 
-## 8. License
-The Kaggle dataset is listed under the CC BY-NC-SA 4.0 license. Its terms must be followed when using or sharing the dataset.
+## 8. License and Usage Terms
+
+The dataset is available on Kaggle under the
+Creative Commons Attribution-NonCommercial-ShareAlike 4.0
+International (CC BY-NC-SA 4.0) license.
+
+Dataset users must:
+- Give appropriate credit to the original dataset creator.
+- Include the license reference.
+- Use the dataset for non-commercial purposes.
+- Share adaptations under the same license.
+
+Source:
+https://www.kaggle.com/datasets/cosmos98/twitter-and-reddit-sentimental-analysis-dataset
+
+## 9. Dataset Limitations
+
+The dataset mainly contains social media posts related to
+political opinions and the 2019 Indian general elections.
+
+Since this project focuses on customer feedback, the dataset
+domain is different from the actual application domain.
+
+Therefore, the trained model may not classify every customer
+feedback correctly, especially neutral or domain-specific text.
