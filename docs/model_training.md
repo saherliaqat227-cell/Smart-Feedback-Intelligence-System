@@ -1,19 +1,21 @@
-
 # Model Training and Evaluation Report
 
 ## 1. Dataset
+
 - Dataset: Twitter and Reddit Sentimental Analysis Dataset
-- Selected File: Twitter_Data.csv
+- Selected File: `Twitter_Data.csv`
 - Cleaned Records: 160,843
 - Sentiment Classes: Negative, Neutral, Positive
 
 ## 2. Data Preparation
+
 - Missing values were removed.
 - Duplicate rows were removed.
 - Dataset was divided into 80% training and 20% testing data.
 - Stratified splitting was used to maintain class distribution.
 
 ## 3. Text Preprocessing
+
 - Technique: TF-IDF Vectorization
 - Maximum Features: 30,000
 - N-gram Range: (1, 2)
@@ -21,6 +23,7 @@
 - TF-IDF was fitted only on training data to prevent data leakage.
 
 ## 4. Machine Learning Model
+
 - Algorithm: Logistic Regression
 - Maximum Iterations: 1000
 
@@ -40,7 +43,6 @@
 | Negative | 0.86 | 0.72 | 0.79 |
 | Neutral | 0.81 | 0.95 | 0.87 |
 | Positive | 0.89 | 0.84 | 0.87 |
-
 
 ## 7. Confusion Matrix
 
@@ -64,30 +66,31 @@ It converts text into numerical TF-IDF features and supports English stop-word r
 
 ## 9. Saved Model Artifacts
 
-- sentiment_model.pkl
-- tfidf_vectorizer.pkl
+- `sentiment_model.pkl`
+- `tfidf_vectorizer.pkl`
 
-## 10. Saved Model Artifacts
-- sentiment_model.pkl
-- tfidf_vectorizer.pkl
+## 10. Training Script
 
-## 11. Training Script
 The reproducible training script is:
-ml/train_model.py
 
-## 12. How to Retrain the Model
+`ml/train_model.py`
+
+## 11. How to Retrain the Model
 
 1. Install project dependencies:
-   pip install -r requirements.txt
 
-2. Make sure Twitter_Data_Cleaned.csv is available inside the ml folder.
+   `pip install -r requirements.txt`
+
+2. Make sure `Twitter_Data_Cleaned.csv` is available inside the `ml` folder.
 
 3. Run the training script:
-   python ml/train_model.py
+
+   `python ml/train_model.py`
 
 4. The script will train the Logistic Regression model and save:
-   - sentiment_model.pkl
-   - tfidf_vectorizer.pkl
+   - `sentiment_model.pkl`
+   - `tfidf_vectorizer.pkl`
 
-## 13. Conclusion
+## 12. Conclusion
+
 The Logistic Regression model achieved 85.24% accuracy on the test dataset. The trained model and TF-IDF vectorizer were successfully saved for future use.
