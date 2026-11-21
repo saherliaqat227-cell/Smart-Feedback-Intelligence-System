@@ -5,6 +5,7 @@ from app.models.user import User
 from app.models.feedback import Feedback
 from app.routes.feedback import router as feedback_router
 from app.routes.auth import router as auth_router
+from app.routes.sentiment import router as sentiment_router
 
 app = FastAPI(
     title="Smart Feedback Intelligence System",
@@ -16,6 +17,7 @@ Base.metadata.create_all(bind=engine)
 
 app.include_router(feedback_router)
 app.include_router(auth_router)
+app.include_router(sentiment_router)
 
 
 @app.get("/")

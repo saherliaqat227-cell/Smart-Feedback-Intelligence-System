@@ -1,22 +1,21 @@
-from typing import Optional
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.orm import Session
-from app.database import get_db
-from app.models.user import User
 
-from app.core.security import get_current_user
+from typing import Optional, List
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from typing import List, Optional
-from datetime import datetime
-
 
 from app.database import get_db
 from app.models.feedback import Feedback
-from app.schemas.feedback import FeedbackCreate, FeedbackResponse, FeedbackUpdate
+from app.schemas.feedback import (
+    FeedbackCreate,
+    FeedbackResponse,
+    FeedbackUpdate
+)
+from app.core.security import get_current_user
+from app.services.sentiment_service import predict_sentiment
+
 
 router = APIRouter(
     prefix="/feedback",
@@ -25,15 +24,29 @@ router = APIRouter(
 )
 
 
-# CREATE FEEDBACK
+# CREATE FEEDBACK WITH SENTIMENT PREDICTION
 @router.post("/", response_model=FeedbackResponse)
-def create_feedback(feedback: FeedbackCreate, db: Session = Depends(get_db)):
+def create_feedback(
+    feedback: FeedbackCreate,
+    db: Session = Depends(get_db)
+):
     try:
+        if not feedback.feedback_text or not feedback.feedback_text.strip():
+            raise HTTPException(
+                status_code=422,
+                detail="Feedback text cannot be empty."
+            )
 
+        # Predict sentiment using trained ML model
+        prediction = predict_sentiment(feedback.feedback_text)
+
+        # Create feedback record
         new_feedback = Feedback(
             customer_name=feedback.customer_name,
             email=feedback.email,
-            feedback_text=feedback.feedback_text
+            feedback_text=feedback.feedback_text.strip(),
+            sentiment=prediction["sentiment"],
+            confidence_score=prediction["confidence_score"]
         )
 
         db.add(new_feedback)
@@ -42,11 +55,21 @@ def create_feedback(feedback: FeedbackCreate, db: Session = Depends(get_db)):
 
         return new_feedback
 
+    except HTTPException:
+        raise
+
     except SQLAlchemyError:
         db.rollback()
         raise HTTPException(
             status_code=500,
             detail="Database error occurred while creating feedback"
+        )
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Sentiment prediction failed: {str(e)}"
         )
 
 
@@ -90,7 +113,10 @@ def get_all_feedback(
 
 # GET FEEDBACK BY ID
 @router.get("/{feedback_id}", response_model=FeedbackResponse)
-def get_feedback(feedback_id: int, db: Session = Depends(get_db)):
+def get_feedback(
+    feedback_id: int,
+    db: Session = Depends(get_db)
+):
     try:
         feedback = db.query(Feedback).filter(
             Feedback.id == feedback_id
@@ -103,6 +129,9 @@ def get_feedback(feedback_id: int, db: Session = Depends(get_db)):
             )
 
         return feedback
+
+    except HTTPException:
+        raise
 
     except SQLAlchemyError:
         raise HTTPException(
@@ -140,6 +169,9 @@ def update_feedback(
 
         return feedback
 
+    except HTTPException:
+        raise
+
     except SQLAlchemyError:
         db.rollback()
         raise HTTPException(
@@ -150,7 +182,10 @@ def update_feedback(
 
 # DELETE FEEDBACK
 @router.delete("/{feedback_id}")
-def delete_feedback(feedback_id: int, db: Session = Depends(get_db)):
+def delete_feedback(
+    feedback_id: int,
+    db: Session = Depends(get_db)
+):
     try:
         feedback = db.query(Feedback).filter(
             Feedback.id == feedback_id
@@ -165,7 +200,12 @@ def delete_feedback(feedback_id: int, db: Session = Depends(get_db)):
         db.delete(feedback)
         db.commit()
 
-        return {"message": "Feedback deleted successfully"}
+        return {
+            "message": "Feedback deleted successfully"
+        }
+
+    except HTTPException:
+        raise
 
     except SQLAlchemyError:
         db.rollback()
@@ -173,46 +213,3 @@ def delete_feedback(feedback_id: int, db: Session = Depends(get_db)):
             status_code=500,
             detail="Database error occurred while deleting feedback"
         )
-
-    security = HTTPBearer(auto_error=False)
-
-    def get_current_user(
-            credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
-            db: Session = Depends(get_db)
-    ):
-        if credentials is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Not authenticated",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
-
-        token_data = verify_token(credentials.credentials)
-
-        if token_data is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid or expired token",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
-
-        user_id = token_data.get("sub")
-
-        if user_id is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token"
-            )
-
-        user = db.query(User).filter(User.id == int(user_id)).first()
-
-        if user is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="User not found"
-            )
-
-        return user
-
-
-

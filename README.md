@@ -1,83 +1,118 @@
 # Smart Feedback Intelligence System
 
-## Project Description
+A machine learning-based customer feedback management system built with **Python, FastAPI, SQLAlchemy, SQLite, and Scikit-learn**. The system allows authenticated users to manage customer feedback and automatically analyze its sentiment as Positive, Negative, or Neutral.
 
-Smart Feedback Intelligence System is a Python-based backend application that analyzes customer feedback and identifies its sentiment as Positive, Negative, or Neutral using Machine Learning.
+## 1. Project Overview
 
-The system provides REST APIs for managing customer feedback, user authentication, and sentiment classification.
+The Smart Feedback Intelligence System is a backend application that combines REST APIs with machine learning to analyze customer feedback.
 
-## Technologies Used
+It uses a trained Logistic Regression model with TF-IDF text vectorization to predict the sentiment of customer feedback.
 
-- Python
-- FastAPI
-- SQLite
-- SQLAlchemy
-- Pydantic
-- Scikit-learn
-- Pandas
-- Matplotlib
-- TF-IDF Vectorization
-- Logistic Regression
-- Natural Language Processing (NLP)
-- JWT Authentication
-- Bcrypt Password Hashing
+### Main Features
 
-## Project Structure
+- User registration and login
+- Password hashing
+- JWT-based authentication
+- Customer feedback management (CRUD)
+- Automatic sentiment prediction
+- Confidence score calculation
+- Search and sentiment filtering
+- Date-based filtering
+- Pagination
+- SQLite database integration
+- Machine learning model integration
+
+## 2. Technologies Used
+
+| Technology | Purpose |
+|---|---|
+| Python | Backend programming |
+| FastAPI | REST API development |
+| SQLAlchemy | Database ORM |
+| SQLite | Database |
+| Pydantic | Data validation |
+| JWT | Authentication |
+| Bcrypt | Password hashing |
+| Scikit-learn | Machine learning |
+| TF-IDF | Text feature extraction |
+| Logistic Regression | Sentiment classification |
+| Pandas | Dataset processing |
+| Joblib | Saving and loading ML models |
+| Pytest | Automated testing |
+
+## 3. Project Structure
 
 ```text
 Smart-Feedback-Intelligence-System/
 │
 ├── app/
+│   ├── core/
+│   │   └── security.py
+│   │
 │   ├── models/
+│   │   ├── user.py
+│   │   └── feedback.py
+│   │
 │   ├── schemas/
+│   │   ├── user.py
+│   │   └── feedback.py
+│   │
 │   ├── routes/
+│   │   ├── auth.py
+│   │   ├── feedback.py
+│   │   └── sentiment.py
+│   │
 │   ├── services/
-│   └── core/
+│   │   ├── auth_service.py
+│   │   └── sentiment_service.py
+│   │
+│   └── database.py
 │
 ├── docs/
 │   ├── dataset.md
-│   └── model_training.md
+│   ├── model_training.md
+│   └── day5_sentiment_integration.md
 │
 ├── ml/
 │   ├── inspect_dataset.py
 │   ├── clean_dataset.py
 │   ├── prepare_data.py
 │   ├── train_model.py
-│   ├── sentiment_distribution.png
 │   ├── sentiment_model.pkl
 │   └── tfidf_vectorizer.pkl
 │
+├── notebooks/
 ├── tests/
 │
 ├── main.py
-├── migrate_db.py
 ├── requirements.txt
 ├── .env.example
 ├── .gitignore
-└── README.md
+├── README.md
+└── smart_feedback.db
 ```
 
-## Installation
+## 4. Installation and Setup
 
-### 1. Clone the Repository
+### Step 1: Clone the Repository
 
 ```bash
 git clone https://github.com/saherliaqat227-cell/Smart-Feedback-Intelligence-System.git
 ```
 
-### 2. Navigate to Project Directory
+### Step 2: Open Project Folder
 
 ```bash
 cd Smart-Feedback-Intelligence-System
 ```
 
-### 3. Create Virtual Environment
+### Step 3: Create Virtual Environment
 
 ```bash
 python -m venv .venv
 ```
 
-### 4. Activate Virtual Environment
+### Step 4: Activate Virtual Environment
 
 Windows:
 
@@ -85,155 +120,209 @@ Windows:
 .venv\Scripts\activate
 ```
 
-### 5. Install Dependencies
+### Step 5: Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 6. Configure Environment Variables
+### Step 6: Configure Environment Variables
 
-Create a `.env` file in the project root and configure the required secret key.
+Create a `.env` file in the project root directory.
 
-Use `.env.example` as a reference.
+Add the following configuration:
 
-## Run the Application
+```env
+SECRET_KEY=your_secret_key
+```
 
-Start the FastAPI server:
+Use a strong secret key for your local environment. Never share your actual secret key or commit the `.env` file to GitHub.
+
+### Step 7: Run the Application
 
 ```bash
 uvicorn main:app --reload
 ```
 
-Open API documentation:
+The application will run at:
 
-http://127.0.0.1:8000/docs
+`http://127.0.0.1:8000`
 
-## Database
+## 5. API Documentation
 
-The project uses SQLite as its database.
+FastAPI automatically generates interactive API documentation.
 
-Database file: `smart_feedback.db`
+**Swagger UI:**
 
-SQLAlchemy is used for database integration and ORM operations.
+`http://127.0.0.1:8000/docs`
 
-## Authentication and Access Rules
+### Authentication APIs
 
-- User registration and login endpoints are publicly accessible.
-- Feedback CRUD endpoints require JWT authentication.
-- Users must provide a valid Bearer token to access protected feedback endpoints.
-- Requests without a token or with an invalid or expired token are rejected with HTTP 401 Unauthorized.
-- Passwords are securely stored as bcrypt hashes.
-- JWT access tokens expire after 30 minutes.
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/auth/register` | Register a new user |
+| POST | `/api/auth/login` | Login and receive an access token |
 
-## Machine Learning Model
+### Feedback APIs
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/feedback/` | Create feedback |
+| GET | `/feedback/` | Get all feedback |
+| GET | `/feedback/{feedback_id}` | Get feedback by ID |
+| PUT | `/feedback/{feedback_id}` | Update feedback |
+| DELETE | `/feedback/{feedback_id}` | Delete feedback |
+
+Feedback routes require authentication.
+
+### Sentiment Analysis API
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/sentiment/predict` | Predict feedback sentiment |
+
+## 6. Sentiment Analysis Model
+
+The system uses a Logistic Regression machine learning model trained on customer sentiment data.
 
 ### Dataset
 
-- Dataset Name: Twitter and Reddit Sentimental Analysis Dataset
-- Source: Kaggle
-- Selected File: `Twitter_Data.csv`
-- Original Records: 162,980
-- Cleaned Records: 160,843
-- Sentiment Classes: Negative, Neutral, Positive
+- Dataset: Twitter and Reddit Sentimental Analysis Dataset
+- Selected file: `Twitter_Data.csv`
+- Cleaned records: 160,843
+- Sentiment classes: Negative, Neutral, Positive
 
 ### Data Preprocessing
 
-- Missing values removed.
-- Duplicate rows removed.
-- Dataset divided into 80% training and 20% testing data.
-- Stratified splitting used to maintain class distribution.
-- TF-IDF vectorization implemented.
-- TF-IDF fitted only on training data to prevent data leakage.
+- Removed missing values.
+- Removed duplicate records.
+- Applied TF-IDF vectorization.
+- Used 30,000 maximum features.
+- Used unigram and bigram features.
+- Applied stratified 80/20 train-test split.
 
-### Model Training
+### Model Configuration
 
 - Algorithm: Logistic Regression
-- Maximum Features: 30,000
-- N-gram Range: (1, 2)
-- Maximum Iterations: 1000
+- Maximum iterations: 1000
+- Vectorizer: TF-IDF
 
 ### Model Evaluation
 
-| Evaluation Metric | Score |
+| Metric | Score |
 |---|---:|
 | Accuracy | 85.24% |
 | Precision | 85.63% |
 | Recall | 85.24% |
 | F1-Score | 85.09% |
 
-### Saved Model Files
+### Class-wise Performance
 
-- `sentiment_model.pkl` — Trained Logistic Regression model.
-- `tfidf_vectorizer.pkl` — Trained TF-IDF vectorizer.
+| Sentiment | Precision | Recall | F1-Score |
+|---|---:|---:|---:|
+| Negative | 0.86 | 0.72 | 0.79 |
+| Neutral | 0.81 | 0.95 | 0.87 |
+| Positive | 0.89 | 0.84 | 0.87 |
 
-### Retrain the Model
+## 7. Model Files
 
-After placing `Twitter_Data_Cleaned.csv` inside the `ml` folder, run:
+The trained model artifacts are saved in the `ml/` directory:
+
+- `sentiment_model.pkl`
+- `tfidf_vectorizer.pkl`
+
+The backend loads these files to predict the sentiment of submitted feedback.
+
+The original and cleaned CSV datasets are not included in GitHub because they are excluded through `.gitignore`.
+
+## 8. Feedback Prediction Workflow
+
+When a customer submits feedback:
+
+1. The API receives the feedback text.
+2. The text is passed to the sentiment prediction service.
+3. The TF-IDF vectorizer converts the text into numerical features.
+4. The Logistic Regression model predicts the sentiment.
+5. The confidence score is calculated.
+6. The feedback, predicted sentiment, and confidence score are stored in the database.
+
+### Example Prediction Response
+
+```json
+{
+  "feedback_text": "The service was excellent and amazing.",
+  "sentiment": "Positive",
+  "confidence_score": 99.97
+}
+```
+
+## 9. Confidence Score and Limitations
+
+The confidence score represents the highest probability returned by the model for its predicted sentiment class, expressed as a percentage.
+
+It does not guarantee that the prediction is correct.
+
+The model may misclassify some feedback, especially short, ambiguous, neutral, or unusual text.
+
+## 10. Model Training
+
+The reproducible training script is:
+
+`ml/train_model.py`
+
+To train the model again:
 
 ```bash
 python ml/train_model.py
 ```
 
-The script trains the model, evaluates its performance, and saves the updated model and vectorizer.
+Make sure the cleaned dataset is available at:
 
-**Note:** Dataset CSV files are excluded from GitHub using `.gitignore`. Download and prepare the dataset separately before training.
+`ml/Twitter_Data_Cleaned.csv`
 
-## Current Progress
+The training script saves the updated model and vectorizer artifacts.
 
-### Day 1 — Requirements, Setup and Design
+For more details, see:
 
-- FastAPI application setup completed.
-- Python virtual environment configured.
-- Health check API created.
-- SQLite database configured.
-- Initial project structure created.
-- Database schema documented.
+`docs/model_training.md`
 
-### Day 2 — Database and Feedback CRUD
+## 11. Project Progress
 
-- SQLAlchemy database integration completed.
-- User and Feedback models created.
-- Pydantic input and output schemas implemented.
-- Feedback Create, Read, Update and Delete (CRUD) APIs implemented.
-- Keyword search and sentiment filtering added.
-- Date range filtering implemented.
-- Pagination implemented.
-- Input validation and missing-record handling added.
-- Database error handling implemented and tested.
-- Database migration script created.
+| Day | Completed Work |
+|---|---|
+| Day 1 | Project setup, FastAPI application, database setup and GitHub repository |
+| Day 2 | Database models, feedback CRUD APIs, validation, search and pagination |
+| Day 3 | User registration, login, password hashing and JWT authentication |
+| Day 4 | Dataset preparation, cleaning, TF-IDF, model training and evaluation |
+| Day 5 | ML model integration, sentiment prediction API and automatic feedback prediction storage |
 
-### Day 3 — Authentication and Security
+## 12. Documentation
 
-- User registration and login APIs implemented.
-- Secure password hashing using bcrypt.
-- JWT access token generation with 30-minute expiry.
-- Protected feedback endpoints implemented.
-- Token validation and authenticated user verification.
-- Unauthorized access and invalid token handling tested.
-- Environment variables configured for secret key.
+Additional project documentation is available in the `docs/` directory:
 
-### Day 4 — Dataset and Model Training
+- `dataset.md` – Dataset information and exploration
+- `model_training.md` – Model training and evaluation report
+- `day5_sentiment_integration.md` – Sentiment integration and testing report
 
-- Labeled sentiment dataset selected and documented.
-- Dataset explored using Pandas.
-- Sentiment class distribution analyzed and visualized.
-- Missing values and duplicate records removed.
-- Training and testing data split using an 80/20 ratio.
-- Stratified sampling implemented.
-- TF-IDF text preprocessing implemented.
-- Logistic Regression classification model trained.
-- Accuracy, Precision, Recall and F1-score calculated.
-- Confusion Matrix generated.
-- Trained model and TF-IDF vectorizer saved.
-- Model evaluation and retraining documentation created.
+## 13. Future Improvements
 
-## Author
+- Implement analytics and sentiment distribution dashboards.
+- Add daily sentiment trend analysis.
+- Improve neutral sentiment classification.
+- Expand automated test coverage.
+- Add more advanced machine learning models.
+- Improve logging and error monitoring.
+
+## 14. Author
 
 **Saher Liaqat**
 
-GitHub: https://github.com/saherliaqat227-cell
+BS Information Technology Student
 
-## Project Repository
+GitHub: [saherliaqat227-cell](https://github.com/saherliaqat227-cell)
 
-https://github.com/saherliaqat227-cell/Smart-Feedback-Intelligence-System
+---
+
+**Project:** Smart Feedback Intelligence System
+
+**Version:** 1.0.0
