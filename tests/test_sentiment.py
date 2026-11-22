@@ -1,3 +1,4 @@
+
 def test_positive_sentiment(client):
     response = client.post(
         "/api/sentiment/predict",
@@ -38,3 +39,16 @@ def test_empty_feedback(client):
     )
 
     assert response.status_code == 422
+
+
+def test_unusual_feedback(client):
+    response = client.post(
+        "/api/sentiment/predict",
+        json={
+            "feedback_text": "123 !!! The package arrived late, but support helped me."
+        }
+    )
+
+    assert response.status_code == 200
+    assert response.json()["sentiment"] in ["Positive", "Negative", "Neutral"]
+    assert response.json()["confidence_score"] > 0
