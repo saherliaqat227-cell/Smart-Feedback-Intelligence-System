@@ -134,156 +134,240 @@ def test_feedback_user_isolation(client):
 
 
 def test_feedback_pagination(client):
+    client.post(
+        "/api/auth/register",
+        json={
+            "username": "pageuser",
+            "email": "page@example.com",
+            "password": "Test12345"
+        }
+    )
+
+    login = client.post(
+        "/api/auth/login",
+        json={
+            "email": "page@example.com",
+            "password": "Test12345"
+        }
+    )
+
+    token = login.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    for i in range(3):
         client.post(
-            "/api/auth/register",
-            json={
-                "username": "pageuser",
-                "email": "page@example.com",
-                "password": "Test12345"
-            }
+            "/api/feedback",
+            headers=headers,
+            json={"feedback_text": f"Excellent service number {i}"}
         )
 
-        login = client.post(
-            "/api/auth/login",
-            json={
-                "email": "page@example.com",
-                "password": "Test12345"
-            }
-        )
+    response = client.get(
+        "/api/feedback?skip=0&limit=2",
+        headers=headers
+    )
 
-        token = login.json()["access_token"]
-        headers = {"Authorization": f"Bearer {token}"}
+    assert response.status_code == 200
+    assert len(response.json()) == 2
 
-        for i in range(3):
-            client.post(
-                "/api/feedback",
-                headers=headers,
-                json={"feedback_text": f"Excellent service number {i}"}
-            )
-
-        response = client.get(
-            "/api/feedback?skip=0&limit=2",
-            headers=headers
-        )
-
-        assert response.status_code == 200
-        assert len(response.json()) == 2
 
 def test_feedback_search(client):
-        client.post(
-            "/api/auth/register",
-            json={
-                "username": "searchuser",
-                "email": "search@example.com",
-                "password": "Test12345"
-            }
-        )
+    client.post(
+        "/api/auth/register",
+        json={
+            "username": "searchuser",
+            "email": "search@example.com",
+            "password": "Test12345"
+        }
+    )
 
-        login = client.post(
-            "/api/auth/login",
-            json={
-                "email": "search@example.com",
-                "password": "Test12345"
-            }
-        )
+    login = client.post(
+        "/api/auth/login",
+        json={
+            "email": "search@example.com",
+            "password": "Test12345"
+        }
+    )
 
-        token = login.json()["access_token"]
-        headers = {"Authorization": f"Bearer {token}"}
+    token = login.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
 
-        client.post(
-            "/api/feedback",
-            headers=headers,
-            json={
-                "customer_name": "Ali",
-                "feedback_text": "Excellent service"
-            }
-        )
+    client.post(
+        "/api/feedback",
+        headers=headers,
+        json={
+            "customer_name": "Ali",
+            "feedback_text": "Excellent service"
+        }
+    )
 
-        client.post(
-            "/api/feedback",
-            headers=headers,
-            json={
-                "customer_name": "Sara",
-                "feedback_text": "Average experience"
-            }
-        )
+    client.post(
+        "/api/feedback",
+        headers=headers,
+        json={
+            "customer_name": "Sara",
+            "feedback_text": "Average experience"
+        }
+    )
 
-        response = client.get(
-            "/api/feedback?search=Ali",
-            headers=headers
-        )
+    response = client.get(
+        "/api/feedback?search=Ali",
+        headers=headers
+    )
 
-        assert response.status_code == 200
-        assert len(response.json()) == 1
-        assert response.json()[0]["customer_name"] == "Ali"
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+    assert response.json()[0]["customer_name"] == "Ali"
+
 
 def test_feedback_sentiment_filter(client):
-        client.post(
-            "/api/auth/register",
-            json={
-                "username": "filteruser",
-                "email": "filter@example.com",
-                "password": "Test12345"
-            }
-        )
+    client.post(
+        "/api/auth/register",
+        json={
+            "username": "filteruser",
+            "email": "filter@example.com",
+            "password": "Test12345"
+        }
+    )
 
-        login = client.post(
-            "/api/auth/login",
-            json={
-                "email": "filter@example.com",
-                "password": "Test12345"
-            }
-        )
+    login = client.post(
+        "/api/auth/login",
+        json={
+            "email": "filter@example.com",
+            "password": "Test12345"
+        }
+    )
 
-        token = login.json()["access_token"]
-        headers = {"Authorization": f"Bearer {token}"}
+    token = login.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
 
-        client.post(
-            "/api/feedback",
-            headers=headers,
-            json={"feedback_text": "Excellent amazing wonderful service"}
-        )
+    client.post(
+        "/api/feedback",
+        headers=headers,
+        json={"feedback_text": "Excellent amazing wonderful service"}
+    )
 
-        client.post(
-            "/api/feedback",
-            headers=headers,
-            json={"feedback_text": "Terrible awful disappointing service"}
-        )
+    client.post(
+        "/api/feedback",
+        headers=headers,
+        json={"feedback_text": "Terrible awful disappointing service"}
+    )
 
-        response = client.get(
-            "/api/feedback?sentiment=Positive",
-            headers=headers
-        )
+    response = client.get(
+        "/api/feedback?sentiment=Positive",
+        headers=headers
+    )
 
-        assert response.status_code == 200
-        assert len(response.json()) == 1
-        assert response.json()[0]["sentiment"] == "Positive"
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+    assert response.json()[0]["sentiment"] == "Positive"
+
 
 def test_feedback_invalid_date_range(client):
-        client.post(
-            "/api/auth/register",
-            json={
-                "username": "dateuser",
-                "email": "date@example.com",
-                "password": "Test12345"
-            }
-        )
+    client.post(
+        "/api/auth/register",
+        json={
+            "username": "dateuser",
+            "email": "date@example.com",
+            "password": "Test12345"
+        }
+    )
 
-        login = client.post(
-            "/api/auth/login",
-            json={
-                "email": "date@example.com",
-                "password": "Test12345"
-            }
-        )
+    login = client.post(
+        "/api/auth/login",
+        json={
+            "email": "date@example.com",
+            "password": "Test12345"
+        }
+    )
 
-        token = login.json()["access_token"]
-        headers = {"Authorization": f"Bearer {token}"}
+    token = login.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
 
-        response = client.get(
-            "/api/feedback?start_date=2026-11-21T00:00:00&end_date=2026-11-01T00:00:00",
-            headers=headers
-        )
+    response = client.get(
+        "/api/feedback?start_date=2026-11-21T00:00:00&end_date=2026-11-01T00:00:00",
+        headers=headers
+    )
 
-        assert response.status_code == 422
+    assert response.status_code == 422
 
+
+def create_feedback_for_test(client):
+    register = client.post(
+        "/api/auth/register",
+        json={
+            "username": "cruduser",
+            "email": "crud@example.com",
+            "password": "Test12345"
+        }
+    )
+    assert register.status_code == 200
+
+    login = client.post(
+        "/api/auth/login",
+        json={
+            "email": "crud@example.com",
+            "password": "Test12345"
+        }
+    )
+    assert login.status_code == 200
+
+    token = login.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    created = client.post(
+        "/api/feedback",
+        headers=headers,
+        json={
+            "customer_name": "CRUD Customer",
+            "feedback_text": "Excellent service!"
+        }
+    )
+    assert created.status_code == 200
+
+    return headers, created.json()
+
+
+def test_get_feedback_by_id_success(client):
+    headers, feedback = create_feedback_for_test(client)
+
+    response = client.get(
+        f"/api/feedback/{feedback['id']}",
+        headers=headers
+    )
+
+    assert response.status_code == 200
+    assert response.json()["id"] == feedback["id"]
+
+
+def test_update_feedback_success(client):
+    headers, feedback = create_feedback_for_test(client)
+
+    response = client.put(
+        f"/api/feedback/{feedback['id']}",
+        headers=headers,
+        json={
+            "feedback_text": "Updated feedback text"
+        }
+    )
+
+    assert response.status_code == 200
+    assert response.json()["feedback_text"] == "Updated feedback text"
+
+
+def test_delete_feedback_success(client):
+    headers, feedback = create_feedback_for_test(client)
+
+    response = client.delete(
+        f"/api/feedback/{feedback['id']}",
+        headers=headers
+    )
+
+    assert response.status_code == 200
+    assert response.json()["message"] == "Feedback deleted successfully"
+
+    check = client.get(
+        f"/api/feedback/{feedback['id']}",
+        headers=headers
+    )
+
+    assert check.status_code == 404

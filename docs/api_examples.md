@@ -1,4 +1,3 @@
-
 # API Examples
 
 ## 1. API Base URL
@@ -64,7 +63,111 @@ The system automatically predicts sentiment and stores the feedback.
 
 Returns feedback records belonging to the authenticated user.
 
-## 6. Predict Sentiment
+## 6. Get Feedback by ID
+
+**Endpoint:** `GET /api/feedback/{feedback_id}`
+
+**Authentication:** Required
+
+**Example:**
+
+```text
+GET /api/feedback/1
+```
+
+Returns the feedback record with the specified ID, if it belongs to the authenticated user.
+
+## 7. Update Feedback
+
+**Endpoint:** `PUT /api/feedback/{feedback_id}`
+
+**Authentication:** Required
+
+**Example:**
+
+```text
+PUT /api/feedback/1
+```
+
+**Request Body:**
+
+```json
+{
+  "feedback_text": "Updated feedback text."
+}
+```
+
+Updates the selected feedback record.
+
+## 8. Delete Feedback
+
+**Endpoint:** `DELETE /api/feedback/{feedback_id}`
+
+**Authentication:** Required
+
+**Example:**
+
+```text
+DELETE /api/feedback/1
+```
+
+Deletes the selected feedback record.
+
+## 9. Search Feedback
+
+**Endpoint:** `GET /api/feedback?search=Ali`
+
+**Authentication:** Required
+
+Searches feedback records using the search keyword.
+
+## 10. Filter Feedback by Sentiment
+
+**Endpoint:** `GET /api/feedback?sentiment=Positive`
+
+**Authentication:** Required
+
+Filters feedback records by sentiment.
+
+Supported sentiment categories:
+
+- Positive
+- Negative
+- Neutral
+
+## 11. Filter Feedback by Date
+
+**Endpoint:** `GET /api/feedback`
+
+**Authentication:** Required
+
+**Query Parameters:**
+
+- `start_date`
+- `end_date`
+
+**Example:**
+
+```text
+GET /api/feedback?start_date=2026-11-01T00:00:00&end_date=2026-11-30T23:59:59
+```
+
+Returns feedback records within the selected date range.
+
+## 12. Feedback Pagination
+
+**Endpoint:** `GET /api/feedback?skip=0&limit=10`
+
+**Authentication:** Required
+
+**Query Parameters:**
+
+- `skip`: Number of records to skip.
+- `limit`: Maximum number of records to return.
+
+Pagination helps retrieve feedback records in smaller groups.
+
+## 13. Predict Sentiment
 
 **Endpoint:** `POST /api/sentiment/predict`
 
@@ -89,7 +192,7 @@ Returns feedback records belonging to the authenticated user.
 
 Note: The confidence score above is illustrative. Actual results depend on the model prediction.
 
-## 7. Analytics Summary
+## 14. Analytics Summary
 
 **Endpoint:** `GET /api/analytics/summary`
 
@@ -97,7 +200,7 @@ Note: The confidence score above is illustrative. Actual results depend on the m
 
 Returns total feedback, sentiment counts, and sentiment distribution percentages.
 
-## 8. Analytics Trends
+## 15. Analytics Trends
 
 **Endpoint:** `GET /api/analytics/trends`
 
@@ -110,13 +213,13 @@ Returns total feedback, sentiment counts, and sentiment distribution percentages
 
 Returns daily feedback counts and sentiment trends for the selected date range.
 
-## 9. Health Check
+## 16. Health Check
 
 **Endpoint:** `GET /health`
 
 Checks whether the application is running.
 
-## 10. API Documentation
+## 17. API Documentation
 
 Interactive API documentation is available through Swagger UI:
 
