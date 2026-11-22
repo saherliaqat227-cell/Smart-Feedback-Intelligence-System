@@ -1,6 +1,6 @@
 # Smart Feedback Intelligence System
 
-A machine learning-based customer feedback management system built with **Python, FastAPI, SQLAlchemy, SQLite, and Scikit-learn**. The system allows authenticated users to manage customer feedback and automatically analyze its sentiment as Positive, Negative, or Neutral.
+A machine learning-based customer feedback management system built with Python, FastAPI, SQLAlchemy, SQLite, and Scikit-learn. The system allows authenticated users to manage customer feedback and automatically analyze its sentiment as Positive, Negative, or Neutral.
 
 ## 1. Project Overview
 
@@ -11,7 +11,7 @@ It uses a trained Logistic Regression model with TF-IDF text vectorization to pr
 ### Main Features
 
 - User registration and login
-- Password hashing
+- Secure password hashing
 - JWT-based authentication
 - Customer feedback management (CRUD)
 - Automatic sentiment prediction
@@ -22,7 +22,10 @@ It uses a trained Logistic Regression model with TF-IDF text vectorization to pr
 - User-specific feedback access
 - SQLite database integration
 - Machine learning model integration
+- Analytics and sentiment distribution
+- Daily feedback and sentiment trends
 - Input validation and error handling
+- Automated testing with Pytest
 
 ## 2. Technologies Used
 
@@ -44,7 +47,7 @@ It uses a trained Logistic Regression model with TF-IDF text vectorization to pr
 | Pytest | Automated testing |
 | Matplotlib | Data visualization |
 
-TF-IDF was selected for text preprocessing and feature extraction because it integrates directly with the Scikit-learn machine learning pipeline.
+TF-IDF was selected for text feature extraction because it integrates directly with the Scikit-learn machine learning pipeline.
 
 ## 3. Project Structure
 
@@ -66,7 +69,8 @@ Smart-Feedback-Intelligence-System/
 │   ├── routes/
 │   │   ├── auth.py
 │   │   ├── feedback.py
-│   │   └── sentiment.py
+│   │   ├── sentiment.py
+│   │   └── analytics.py
 │   │
 │   ├── services/
 │   │   ├── auth_service.py
@@ -78,7 +82,8 @@ Smart-Feedback-Intelligence-System/
 │   ├── database_schema.md
 │   ├── dataset.md
 │   ├── model_training.md
-│   └── day5_sentiment_integration.md
+│   ├── day5_sentiment_integration.md
+│   └── day6_test_results.md
 │
 ├── ml/
 │   ├── inspect_dataset.py
@@ -88,18 +93,19 @@ Smart-Feedback-Intelligence-System/
 │   ├── sentiment_model.pkl
 │   └── tfidf_vectorizer.pkl
 │
-├── notebooks/
-│
 ├── tests/
-│   └── test_feedback.py
+│   ├── conftest.py
+│   ├── test_auth.py
+│   ├── test_feedback.py
+│   ├── test_sentiment.py
+│   └── test_analytics.py
 │
 ├── main.py
 ├── migrate_db.py
 ├── requirements.txt
 ├── .env.example
 ├── .gitignore
-├── README.md
-└── smart_feedback.db
+└── README.md
 ```
 
 ## 4. Installation and Setup
@@ -162,7 +168,7 @@ The application will run at:
 
 FastAPI automatically generates interactive API documentation using Swagger UI and OpenAPI.
 
-**Swagger UI:**
+Swagger UI:
 
 `http://127.0.0.1:8000/docs`
 
@@ -178,7 +184,7 @@ FastAPI automatically generates interactive API documentation using Swagger UI a
 | Method | Endpoint | Description |
 |---|---|---|
 | POST | `/api/feedback` | Create feedback with automatic sentiment prediction |
-| GET | `/api/feedback` | Get all feedback with search, filters and pagination |
+| GET | `/api/feedback` | Get feedback with search, filters and pagination |
 | GET | `/api/feedback/{feedback_id}` | Get feedback by ID |
 | PUT | `/api/feedback/{feedback_id}` | Update feedback |
 | DELETE | `/api/feedback/{feedback_id}` | Delete feedback |
@@ -203,7 +209,39 @@ FastAPI automatically generates interactive API documentation using Swagger UI a
 
 The sentiment prediction endpoint is public and does not require authentication.
 
-**Authentication:** Private feedback endpoints require a valid JWT Bearer access token.
+### Analytics APIs
+
+The system provides authenticated analytics endpoints to monitor customer feedback and sentiment distribution.
+
+**1. GET `/api/analytics/summary`**
+
+Returns:
+
+- Total feedback count.
+- Positive feedback count.
+- Negative feedback count.
+- Neutral feedback count.
+- Sentiment distribution percentages.
+
+**2. GET `/api/analytics/trends`**
+
+Required query parameters:
+
+- `start_date`
+- `end_date`
+
+Returns daily feedback counts and sentiment trends for the requested date range.
+
+Both analytics endpoints require a valid JWT access token.
+
+### Authentication and Access Rules
+
+- Registration and login endpoints are public.
+- Sentiment prediction endpoint is public.
+- Feedback management endpoints require JWT authentication.
+- Analytics endpoints require JWT authentication.
+- Private endpoints validate the access token before processing requests.
+- Users can access their own feedback records.
 
 ## 6. Sentiment Analysis Model
 
@@ -268,7 +306,7 @@ Dataset source:
 
 https://www.kaggle.com/datasets/cosmos98/twitter-and-reddit-sentimental-analysis-dataset
 
-The dataset is distributed under the **CC BY-NC-SA 4.0** license.
+The dataset is distributed under the CC BY-NC-SA 4.0 license.
 
 This license requires appropriate attribution, restricts commercial use, and requires adaptations to be shared under the same license.
 
@@ -344,25 +382,46 @@ For more details, see:
 
 Pytest is used for automated testing.
 
-Run the tests using:
+The project includes automated tests for:
+
+- User registration and authentication.
+- Feedback CRUD operations.
+- Sentiment prediction behavior.
+- Analytics summary and trends.
+- Invalid credentials and unauthorized access.
+- Input validation and error handling.
+- Pagination and filtering.
+- Analytics date validation.
+
+### Test Execution
+
+Run the complete test suite using:
 
 ```bash
 python -m pytest tests/ -v
 ```
 
-The project includes automated testing for database error handling, with additional API and integration tests included as the test suite is expanded.
+### Test Results
+
+The complete test suite was executed successfully.
+
+- Total passed tests: 23
+- Warnings: 4
+- Failed tests: 0
+
+The warnings are related to Pydantic deprecations and do not indicate test failures.
 
 ## 13. Project Progress
 
-| Day | Work |
+| Day | Work Completed |
 |---|---|
-| Day 1 | Project setup, FastAPI application, database setup and GitHub repository |
+| Day 1 | Project setup, FastAPI application, database setup, health-check route and GitHub repository |
 | Day 2 | Database models, feedback CRUD APIs, validation, search, filters and pagination |
 | Day 3 | User registration, login, password hashing and JWT authentication |
 | Day 4 | Dataset preparation, cleaning, TF-IDF, model training and evaluation |
 | Day 5 | ML model integration, sentiment prediction API and automatic feedback prediction storage |
-| Day 6 | Analytics endpoints, automated testing and bug fixing |
-| Day 7 | Final documentation, API examples, architecture explanation and project demonstration |
+| Day 6 | Analytics endpoints, automated testing, logging, code review and bug fixing |
+| Day 7 | Pending |
 
 ## 14. Documentation
 
@@ -372,16 +431,16 @@ Additional project documentation is available in the `docs/` directory:
 - `dataset.md` – Dataset information and exploration.
 - `model_training.md` – Model training and evaluation report.
 - `day5_sentiment_integration.md` – Sentiment integration and testing report.
+- `day6_test_results.md` – Analytics, automated testing and code review results.
 
 ## 15. Future Improvements
 
-- Implement analytics and sentiment distribution dashboards.
-- Add daily sentiment trend analysis.
 - Improve neutral sentiment classification.
 - Expand automated test coverage.
 - Add more advanced machine learning models.
 - Improve logging and error monitoring.
 - Consider PostgreSQL for production database requirements.
+- Develop a user-friendly dashboard for analytics visualization.
 
 ## 16. AI Assistance Disclosure
 
@@ -391,12 +450,10 @@ AI coding assistance was used for guidance, code explanations, debugging, and do
 
 **Saher Liaqat**
 
-BS Information Technology Student
-
 GitHub: https://github.com/saherliaqat227-cell
 
 ---
 
-**Project:** Smart Feedback Intelligence System
+Project: Smart Feedback Intelligence System
 
-**Version:** 1.0.0
+Version: 1.0.0
