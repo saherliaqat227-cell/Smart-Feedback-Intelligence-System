@@ -389,13 +389,21 @@ The project includes automated tests using Pytest to verify authentication, feed
 
 **Latest Test Results:**
 
-- Total Tests: 24
-- Passed: 24
+| Test Category | Passed |
+|---|---:|
+| Authentication | 6 |
+| Feedback Management | 11 |
+| Sentiment Analysis | 5 |
+| Analytics | 5 |
+| **Total** | **27** |
+
+- Total Tests: 27
+- Passed: 27
 - Failed: 0
 - Warnings: 4
-- Execution Time: 10.36 seconds
+- Execution Time: 18.29 seconds
 
-All 24 automated tests passed successfully. The 4 warnings are related to Pydantic and FastAPI deprecations and do not affect the successful test results.
+All 27 automated tests passed successfully. The 4 warnings are related to Pydantic and FastAPI deprecations and do not affect the successful test results.
 
 **Run Tests:**
 
